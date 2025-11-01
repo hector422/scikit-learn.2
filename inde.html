@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ML Básico con scikit-learn (Contenido Extenso)</title>
+    <style>
+        body {
+            font-family: Georgia, serif;
+            line-height: 1.8;
+            margin: 0 auto;
+            max-width: 900px;
+            padding: 20px;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 3px solid #007bff;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #007bff;
+            font-size: 2.5em;
+        }
+        
+        h2 {
+            color: #28a745;
+            border-left: 5px solid #28a745;
+            padding-left: 10px;
+            margin-top: 40px;
+            font-size: 1.8em;
+        }
+        
+        h3 {
+            color: #6c757d;
+            margin-top: 30px;
+            font-size: 1.4em;
+        }
+        
+        .indice {
+            border: 1px solid #ddd;
+            padding: 15px;
+            background-color: #e9ecef;
+            margin-bottom: 30px;
+            border-radius: 5px;
+        }
+        
+        .indice ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .indice li a {
+            text-decoration: none;
+            color: #0056b3;
+            display: block;
+            padding: 5px 0;
+        }
+        
+        .indice li a:hover {
+            text-decoration: underline;
+        }
+        
+        .contenido section {
+            margin-bottom: 50px;
+        }
+        
+        pre {
+            background-color: #f8f8f8;
+            border: 1px solid #ccc;
+            padding: 15px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        
+        .nota {
+            background-color: #fff3cd;
+            border-left: 5px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>🌟 Fundamentos de Machine Learning con scikit-learn 🌟</h1>
+        <p>Una guía detallada para principiantes en la ciencia de datos.</p>
+    </header>
+
+    <nav class="indice">
+        <h2>📜 Índice Rápido de Contenidos</h2>
+        <ul>
+            <li><a href="#introduccion">1. ¿Qué es scikit-learn y por qué usarlo?</a></li>
+            <li><a href="#proceso-ml">2. El Flujo de Trabajo Estándar en ML</a></li>
+            <li><a href="#datos-preparacion">3. Carga, Exploración y Preprocesamiento de Datos</a></li>
+            <li><a href="#supervisado-clasificacion">4. Aprendizaje Supervisado: Clasificación (Logistic Regression)</a></li>
+            <li><a href="#supervisado-regresion">5. Aprendizaje Supervisado: Regresión (Linear Regression)</a></li>
+            <li><a href="#no-supervisado">6. Aprendizaje No Supervisado: Clustering (K-Means)</a></li>
+            <li><a href="#evaluacion-metricas">7. Evaluación de Modelos y Métricas Clave</a></li>
+        </ul>
+    </nav>
+
+    <main class="contenido">
+
+        <section id="introduccion">
+            <h2>1. ¿Qué es scikit-learn y por qué usarlo?</h2>
+            <p><strong>scikit-learn</strong>, también conocida como <code>sklearn</code>, es la biblioteca de Python más popular y completa para el desarrollo de modelos de **Machine Learning**. Su éxito radica en su increíblemente simple y consistente API
+                (Interfaz de Programación de Aplicaciones). Fue construida sobre las bases de otras librerías científicas de Python como NumPy, SciPy y Matplotlib.</p>
+
+            <h3>1.1. La Filosofía del Estimador</h3>
+            <p>La clave de la uniformidad de scikit-learn son los objetos llamados **Estimadores**. Un estimador es cualquier objeto que puede <em>estimar</em> o <em>aprender</em> un modelo a partir de un conjunto de datos. Todos los estimadores implementan
+                los siguientes métodos fundamentales:</p>
+            <ul>
+                <li><code>.fit(X, y)</code>: El método principal. Se utiliza para entrenar el modelo. Recibe los datos de entrada (características <code>X</code>) y, en el caso de aprendizaje supervisado, las etiquetas objetivo (<code>y</code>).</li>
+                <li><code>.predict(X)</code>: Se utiliza para hacer predicciones sobre nuevas instancias de datos <code>X</code> después de que el modelo ha sido entrenado.</li>
+                <li><code>.transform(X)</code>: Utilizado por los preprocesadores (como escaladores) para modificar los datos <code>X</code>.</li>
+                <li><code>.score(X, y)</code>: Un método conveniente para evaluar la precisión del modelo en un conjunto de prueba.</li>
+            </ul>
+            <p class="nota"><strong>NOTA:</strong> Gracias a esta API uniforme, si sabes cómo entrenar un modelo de Regresión Logística, sabes cómo entrenar un Árbol de Decisión o un modelo de Máquinas de Soporte Vectorial (SVM). Solo necesitas cambiar el nombre del
+                Estimador.</p>
+        </section>
+
+        <section id="proceso-ml">
+            <h2>2. El Flujo de Trabajo Estándar en ML</h2>
+            <p>El proceso de construir un modelo de Machine Learning con scikit-learn se puede resumir en estos pasos esenciales, que se repiten en casi todos los proyectos:</p>
+
+            <h3>2.1. Carga y Estructura de Datos</h3>
+            <p>Los datos deben estar estructurados en dos componentes principales, generalmente matrices de NumPy o DataFrames de Pandas:</p>
+            <ul>
+                <li><strong>Matriz de Características (X):</strong> Contiene todas las variables predictoras (las columnas que se usarán para predecir). Cada fila es una muestra y cada columna es una característica.</li>
+                <li><strong>Vector Objetivo (y):</strong> Contiene el valor que se quiere predecir (la etiqueta). Es un vector unidimensional.</li>
+            </ul>
+
+            <h3>2.2. División de Datos: Entrenamiento y Prueba</h3>
+            <p>El paso más crucial es la división de datos. Usamos la función <code>train_test_split</code> para separar los datos en dos conjuntos mutuamente excluyentes:</p>
+            <pre><code>
+from sklearn.model_selection import train_test_split
+# División 70% entrenamiento, 30% prueba
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
+            </code></pre>
+            <p>El conjunto de **entrenamiento** (<code>X_train</code>, <code>y_train</code>) se usa para que el modelo "aprenda". El conjunto de **prueba** (<code>X_test</code>, <code>y_test</code>) se usa una sola vez, al final, para evaluar cómo se comporta
+                el modelo con datos que nunca ha visto, asegurando que no haya sobreajuste (overfitting).</p>
+
+            <h3>2.3. Instanciar, Entrenar y Predecir</h3>
+            <p>Después de la división, el proceso de modelado es simple:</p>
+            <ol>
+                <li><strong>Instanciar:</strong> Crear una instancia del estimador (por ejemplo, <code>modelo = LinearRegression()</code>).</li>
+                <li><strong>Entrenar:</strong> Llamar al método <code>.fit()</code> con los datos de entrenamiento (<code>modelo.fit(X_train, y_train)</code>).</li>
+                <li><strong>Predecir:</strong> Llamar al método <code>.predict()</code> con las características de prueba (<code>y_pred = modelo.predict(X_test)</code>).</li>
+            </ol>
+        </section>
+
+        <section id="datos-preparacion">
+            <h2>3. Carga, Exploración y Preprocesamiento de Datos</h2>
+            <p>Los datos del mundo real son ruidosos. scikit-learn ofrece herramientas robustas para prepararlos.</p>
+
+            <h3>3.1. Conjuntos de Datos de Juguete</h3>
+            <p>Para empezar, scikit-learn incluye datos listos para usar:</p>
+            <pre><code>
+from sklearn.datasets import load_iris
+iris = load_iris()
+X = iris.data  # Características
+y = iris.target # Etiquetas
+            </code></pre>
+            <p>Otros datasets comunes incluyen <code>load_boston</code> (para regresión, aunque obsoleto), <code>load_digits</code>, y <code>make_blobs</code> para generar datos sintéticos.</p>
+
+            <h3>3.2. Manejo de Valores Faltantes (Imputación)</h3>
+            <p>Si faltan datos, el modelo no puede entrenarse. El <code>SimpleImputer</code> permite rellenar los valores faltantes (NaN) utilizando estrategias como la media, la mediana o la moda.</p>
+
+            <h3>3.3. Escalado de Características (Estandarización y Normalización)</h3>
+            <p>Muchos algoritmos de ML, especialmente los que usan distancias (K-NN, SVM, K-Means), se ven afectados si las características están en diferentes escalas. Se usan dos métodos principales:</p>
+            <ul>
+                <li><strong>Estandarización (<code>StandardScaler</code>):</strong> Transforma los datos para que tengan una media ($\mu$) de 0 y una desviación estándar ($\sigma$) de 1. Es el método más común.</li>
+                <li><strong>Normalización (<code>MinMaxScaler</code>):</strong> Escala los datos a un rango específico, generalmente [0, 1].</li>
+            </ul>
+            <p><strong>IMPORTANTE:</strong> Siempre se debe ajustar el escalador (<code>.fit()</code>) solo con los datos de **entrenamiento** (<code>X_train</code>) y luego aplicarlo (<code>.transform()</code>) tanto al entrenamiento como a la prueba.</p>
+        </section>
+
+        <section id="supervisado-clasificacion">
+            <h2>4. Aprendizaje Supervisado: Clasificación (Logistic Regression)</h2>
+            <p>La Clasificación es el tipo de aprendizaje supervisado cuyo objetivo es predecir una **etiqueta discreta** o **categórica** (ej. A o B, 0 o 1, Spam o No Spam).</p>
+
+            <h3>4.1. Regresión Logística (<code>LogisticRegression</code>)</h3>
+            <p>A pesar de su nombre, es un algoritmo fundamental para la clasificación. Utiliza la función logística (o sigmoide) para mapear cualquier valor real a una probabilidad entre 0 y 1. Es rápido, fácil de interpretar y funciona bien como línea
+                base.</p>
+            <p><strong>Ejemplo de Código Básico de Clasificación:</strong></p>
+            <pre><code>
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
+from sklearn.datasets import load_breast_cancer # Un dataset para clasificación binaria
+
+# 1. Preparación
+data = load_breast_cancer()
+X, y = data.data, data.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+# 2. Modelado
+clf = LogisticRegression(max_iter=5000) # El estimador
+clf.fit(X_train, y_train) # Entrenamiento
+y_pred = clf.predict(X_test) # Predicción
+
+# 3. Evaluación
+score = clf.score(X_test, y_test)
+# print(f"Precisión del modelo: {score:.4f}")
+            </code></pre>
+
+            <h3>4.2. Otros Clasificadores Populares</h3>
+            <p>scikit-learn ofrece una rica colección de clasificadores:</p>
+            <ul>
+                <li><strong>K-Vecinos Más Cercanos (KNeighborsClassifier):</strong> Clasifica una muestra basándose en la mayoría de votos de sus vecinos más cercanos.</li>
+                <li><strong>Máquinas de Soporte Vectorial (SVC):</strong> Busca el hiperplano óptimo que mejor separe las clases en el espacio de características.</li>
+                <li><strong>Árboles de Decisión y Bosques Aleatorios (DecisionTreeClassifier, RandomForestClassifier):</strong> Modelos muy flexibles que pueden capturar relaciones no lineales y son robustos al sobreajuste (especialmente Random Forest).</li>
+            </ul>
+        </section>
+
+        <section id="supervisado-regresion">
+            <h2>5. Aprendizaje Supervisado: Regresión (Linear Regression)</h2>
+            <p>La Regresión es el tipo de aprendizaje supervisado cuyo objetivo es predecir un **valor continuo** o **numérico** (ej. el precio de las acciones, la temperatura, el salario).</p>
+
+            <h3>5.1. Regresión Lineal (<code>LinearRegression</code>)</h3>
+            <p>Es el modelo de regresión más simple y sirve como base para muchos otros. Asume que existe una relación lineal entre las características de entrada (X) y la variable objetivo (y). Busca la línea que minimiza la suma de los errores cuadrados.</p>
+            <p><strong>Fórmula del Modelo:</strong> $\hat{y} = \theta_0 + \theta_1 x_1 + \theta_2 x_2 + ... + \theta_n x_n$</p>
+            <p>Donde $\hat{y}$ es el valor predicho, $\theta_0$ es el intercepto, y $\theta_i$ son los coeficientes de regresión (las "pendientes") que scikit-learn aprende durante el entrenamiento.</p>
+            <p><strong>Ejemplo de Código Básico de Regresión:</strong></p>
+            <pre><code>
+from sklearn.linear_model import LinearRegression
+from sklearn.datasets import fetch_california_housing # Dataset para regresión
+from sklearn.model_selection import train_test_split
+
+# 1. Preparación
+data = fetch_california_housing()
+X, y = data.data, data.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+
+# 2. Modelado
+reg = LinearRegression() # El estimador
+reg.fit(X_train, y_train) # Entrenamiento
+y_pred = reg.predict(X_test) # Predicción
+
+# 3. Acceso a parámetros (opcional)
+# print(f"Coeficientes (theta_i): {reg.coef_}")
+# print(f"Intercepto (theta_0): {reg.intercept_}")
+            </code></pre>
+
+            <h3>5.2. Otros Regresores Importantes</h3>
+            <ul>
+                <li><strong>Regresión Ridge y Lasso:</strong> Formas de Regresión Lineal regularizadas que ayudan a evitar el sobreajuste, especialmente útiles cuando hay muchas características.</li>
+                <li><strong>Árboles de Regresión y SVR (Support Vector Regression):</strong> Opciones para modelar relaciones más complejas y no lineales en los datos.</li>
+            </ul>
+        </section>
+
+        <section id="no-supervisado">
+            <h2>6. Aprendizaje No Supervisado: Clustering (K-Means)</h2>
+            <p>El Aprendizaje No Supervisado trata con datos que **no tienen etiquetas objetivo** (no hay variable <code>y</code>). El objetivo es descubrir patrones o estructuras ocultas dentro de los datos.</p>
+
+            <h3>6.1. Agrupamiento K-Means (<code>KMeans</code>)</h3>
+            <p>K-Means es el algoritmo de clustering más conocido. Su objetivo es dividir las $N$ muestras en $K$ grupos (clusters), donde $K$ es un parámetro definido por el usuario.</p>
+            <p>El algoritmo funciona de la siguiente manera:</p>
+            <ol>
+                <li>Inicializa $K$ centroides aleatoriamente.</li>
+                <li>Asigna cada punto de datos al centroide más cercano.</li>
+                <li>Recalcula la posición de cada centroide (media de todos los puntos asignados a ese cluster).</li>
+                <li>Repite los pasos 2 y 3 hasta que los centroides ya no se muevan significativamente.</li>
+            </ol>
+            <p><strong>Ejemplo de Código K-Means:</strong></p>
+            <pre><code>
+from sklearn.cluster import KMeans
+from sklearn.datasets import make_blobs
+
+# 1. Generar datos sintéticos
+X, _ = make_blobs(n_samples=300, centers=4, cluster_std=0.60, random_state=0)
+
+# 2. Modelado (Asumimos K=4 clusters)
+kmeans = KMeans(n_clusters=4, random_state=0, n_init=10)
+kmeans.fit(X)
+
+# 3. Resultados
+clusters = kmeans.predict(X)
+centroides = kmeans.cluster_centers_
+# print(f"Etiquetas de Cluster: {clusters[:10]}")
+            </code></pre>
+
+            <h3>6.2. Reducción de Dimensionalidad (PCA)</h3>
+            <p>Otra técnica no supervisada fundamental es la Reducción de Dimensionalidad, como el **Análisis de Componentes Principales (PCA)**. Se utiliza para reducir el número de características, simplificando el modelo y visualizando datos de alta dimensión,
+                sin perder demasiada información.</p>
+        </section>
+
+        <section id="evaluacion-metricas">
+            <h2>7. Evaluación de Modelos y Métricas Clave</h2>
+            <p>Evaluar el rendimiento del modelo es tan importante como entrenarlo.</p>
+
+            <h3>7.1. Métricas de Clasificación</h3>
+            <p>Para la clasificación, usamos métricas que evalúan qué tan bien el modelo predijo las categorías:</p>
+            <ul>
+                <li><strong>Exactitud (Accuracy):</strong> $\text{Exactitud} = \frac{\text{Número de Predicciones Correctas}}{\text{Número Total de Predicciones}}$. Es simple, pero engañoso en datos desbalanceados.</li>
+                <li><strong>Precisión (Precision), Sensibilidad (Recall) y F1-Score:</strong> Métricas más robustas que se basan en la **Matriz de Confusión**. scikit-learn provee la función <code>classification_report</code> para ver todas ellas a la vez.</li>
+                <li><strong>Matriz de Confusión:</strong> Una tabla que muestra el número de verdaderos positivos (VP), verdaderos negativos (VN), falsos positivos (FP) y falsos negativos (FN).</li>
+            </ul>
+            <pre><code>
+from sklearn.metrics import classification_report
+# print(classification_report(y_test, y_pred))
+            </code></pre>
+
+            <h3>7.2. Métricas de Regresión</h3>
+            <p>Para la regresión, medimos la "distancia" entre el valor predicho ($\hat{y}$) y el valor real ($y$).</p>
+            <ul>
+                <li><strong>Error Cuadrático Medio (MSE):</strong> Mide el promedio del cuadrado de los errores. Penaliza fuertemente los errores grandes.</li>
+                <li><strong>Raíz del Error Cuadrático Medio (RMSE):</strong> Es la raíz cuadrada del MSE. Mantiene las unidades originales de $y$, haciéndolo más interpretable.</li>
+                <li><strong>Coeficiente de Determinación ($R^2$):</strong> Mide la proporción de la varianza en la variable dependiente que es predecible a partir de la variable independiente. El mejor valor posible es 1.0.</li>
+            </ul>
+            <pre><code>
+from sklearn.metrics import mean_squared_error, r2_score
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+# print(f"MSE: {mse:.2f}, R2 Score: {r2:.2f}")
+            </code></pre>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Fin del Contenido Detallado. Explora la documentación oficial de scikit-learn para profundizar.</p>
+    </footer>
+
+</body>
+
+</html>
